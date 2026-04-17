@@ -56,8 +56,7 @@ public:
     if (!Callee)
       return true;
 
-    const unsigned Count =
-        std::min(Call->getNumArgs(), Callee->getNumParams());
+    const unsigned Count = std::min(Call->getNumArgs(), Callee->getNumParams());
     for (unsigned I = 0; I < Count; ++I)
       markCallArgument(Call->getArg(I), Callee->getParamDecl(I)->getType());
 
@@ -254,9 +253,9 @@ private:
 
     const bool NeedConstObject =
         !State.ObjectChanged && !Type->getPointeeType().isConstQualified();
-    const bool NeedConstPointer =
-        !State.VariableChanged && !Type.isLocalConstQualified() &&
-        canMakePointerConst(Decl);
+    const bool NeedConstPointer = !State.VariableChanged &&
+                                  !Type.isLocalConstQualified() &&
+                                  canMakePointerConst(Decl);
     if (!NeedConstObject && !NeedConstPointer)
       return "";
 
