@@ -292,7 +292,8 @@ public:
     Visitor.applyRewrites();
 
     const FileID MainFile = Context.getSourceManager().getMainFileID();
-    if (const RewriteBuffer *Buffer = Rewrite.getRewriteBufferFor(MainFile)) {
+    if (const llvm::RewriteBuffer *Buffer =
+            Rewrite.getRewriteBufferFor(MainFile)) {
       llvm::outs() << std::string(Buffer->begin(), Buffer->end());
       return;
     }
