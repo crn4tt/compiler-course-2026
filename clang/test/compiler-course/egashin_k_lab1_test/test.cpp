@@ -3,6 +3,7 @@
 void mutate_value(int *value);
 void inspect_value(const int *value);
 void mutate_ref(int &value);
+void mutate_pointer_ref(int *&value);
 
 // CHECK-LABEL: void readonly_pointer{{[(][)]}}
 // CHECK: const int{{ *\* *}}const ptr {{=}} &value;
@@ -73,6 +74,7 @@ void mixed_parameters(int* out, int* moving, int& ref) {
 
 struct Box {
   void bump() { ++value; }
+  int peek() const { return value; }
   int value;
 };
 
@@ -100,6 +102,24 @@ void member_call_reference() {
   ref.bump();
 }
 
+// CHECK-LABEL: void const_member_call_pointer{{[(][)]}}
+// CHECK: const Box{{ *\* *}}const ptr {{=}} &box;
+void const_member_call_pointer() {
+  Box box{0};
+  Box* ptr = &box;
+  int read = ptr->peek();
+  (void)read;
+}
+
+// CHECK-LABEL: void const_member_call_reference{{[(][)]}}
+// CHECK: const Box{{ *& *}}ref {{=}} box;
+void const_member_call_reference() {
+  Box box{0};
+  Box& ref = box;
+  int read = ref.peek();
+  (void)read;
+}
+
 // CHECK-LABEL: void array_write{{[(][)]}}
 // CHECK: int{{ *\* *}}const ptr {{=}} values;
 void array_write() {
@@ -114,6 +134,14 @@ void call_arguments(int* mutable_ptr, int* readonly_ptr, int& ref) {
   mutate_value(mutable_ptr);
   inspect_value(readonly_ptr);
   mutate_ref(ref);
+}
+
+// CHECK-LABEL: void call_pointer_reference{{[(][)]}}
+// CHECK: int{{ *\* *}}ptr {{=}} &value;
+void call_pointer_reference() {
+  int value = 8;
+  int* ptr = &value;
+  mutate_pointer_ref(ptr);
 }
 
 // CHECK-LABEL: void double_pointer_read{{[(][)]}}
@@ -133,6 +161,15 @@ void multi_declarator() {
   int* first = &value, *second = &value;
   *second = 7;
   int read = *first;
+  (void)read;
+}
+
+// CHECK-LABEL: void const_pointee_pointer{{[(][)]}}
+// CHECK: const int{{ *\* *}}const ptr {{=}} &value;
+void const_pointee_pointer() {
+  int value = 9;
+  const int* ptr = &value;
+  int read = *ptr;
   (void)read;
 }
 
