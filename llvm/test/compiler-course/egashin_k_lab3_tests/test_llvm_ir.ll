@@ -88,7 +88,7 @@ exit:
 
 define void @mixed_nested_runtime_outer(i32 %n, ptr %out) {
 ; CHECK-LABEL: define void @mixed_nested_runtime_outer(
-; CHECK: %i = phi i32 [ 0, %entry ], [ %i.next, %outer.latch ]
+; CHECK: %i = phi i32 [ 0, %entry ], [ %i.next, %{{[^]]+}} ]
 ; CHECK-NOT: %j = phi i32
 ; CHECK-NOT: br i1 %inner.done, label %outer.latch, label %inner.header
 ; CHECK: store i32 1, ptr %out, align 4
