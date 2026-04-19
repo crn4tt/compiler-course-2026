@@ -3,6 +3,8 @@
 
 define void @unroll_three_iterations(ptr %out) {
 ; CHECK-LABEL: define void @unroll_three_iterations(
+; CHECK-NOT: phi i32
+; CHECK-NOT: br i1 %done, label %exit, label %loop
 ; CHECK: store i32
 ; CHECK: store i32
 ; CHECK: store i32
@@ -15,6 +17,30 @@ loop:
   store i32 %i, ptr %out, align 4
   %next = add nuw nsw i32 %i, 1
   %done = icmp eq i32 %next, 3
+  br i1 %done, label %exit, label %loop
+
+exit:
+  ret void
+}
+
+define void @unroll_five_iterations(ptr %out) {
+; CHECK-LABEL: define void @unroll_five_iterations(
+; CHECK-NOT: phi i32
+; CHECK-NOT: br i1 %done, label %exit, label %loop
+; CHECK: store i32
+; CHECK: store i32
+; CHECK: store i32
+; CHECK: store i32
+; CHECK: store i32
+; CHECK: ret void
+entry:
+  br label %loop
+
+loop:
+  %i = phi i32 [ 0, %entry ], [ %next, %loop ]
+  store i32 %i, ptr %out, align 4
+  %next = add nuw nsw i32 %i, 1
+  %done = icmp eq i32 %next, 5
   br i1 %done, label %exit, label %loop
 
 exit:
@@ -42,6 +68,9 @@ exit:
 
 define void @unroll_nested_loops(ptr %out) {
 ; CHECK-LABEL: define void @unroll_nested_loops(
+; CHECK-NOT: phi i32
+; CHECK-NOT: br i1 %inner.done, label %outer.latch, label %inner.header
+; CHECK-NOT: br i1 %outer.done, label %exit, label %outer.header
 ; CHECK: store i32 1, ptr %out, align 4
 ; CHECK: store i32 1, ptr %out, align 4
 ; CHECK: store i32 1, ptr %out, align 4
